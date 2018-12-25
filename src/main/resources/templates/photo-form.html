@@ -1,0 +1,43 @@
+<!--{% extends "main.html" %}
+{% block content %}-->
+
+<h4 xmlns:th="http://www.w3.org/1999/xhtml">Upload Photo</h4>
+<form method="POST" enctype="multipart/form-data" action="/">
+    <!--{{ form.csrf_token }}-->
+    <div class="control-group">
+        <label class="control-label">Photo</label>
+        <!--{{ form.photo() }}-->
+    </div>
+
+    &nbsp;
+    <div class="control-group">
+        <div class="controls">
+            <input type="file" class="file" name="file" />
+            <input class="btn btn-primary" type="submit" value="Upload">
+        </div>
+    </div>
+</form>
+
+<!--{% if url %}-->
+<!--<th:block th:if="#{false}">-->
+<th:block th:if="${uploaded != null}">
+    <hr/>
+    <h3>Uploaded!</h3>
+    <img th:src="${url}"/><br/>
+    <!--{% for label in all_labels %}-->
+    <!--<span class="label label-info">{{label}}</span>-->
+    <!--{% endfor %}-->
+</th:block>
+<!--{% endif %}-->
+
+<!--{% if photos %}-->
+<hr/>
+<h4>Photos</h4>
+<!--{% for photo in photos %}-->
+<th:block th:each="photo : ${photos}">
+    <img width="150" th:src="${photo}" />
+</th:block>
+<!--{% endfor %}-->
+<!--{% endif %}-->
+
+<!--{% endblock %}-->

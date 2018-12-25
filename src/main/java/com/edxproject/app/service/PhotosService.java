@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface PhotosService {
     Mono<List<String>> getPhotosUrls();
-    Mono postPhoto(File file);
+    Mono<String> postPhoto(File file);
 }

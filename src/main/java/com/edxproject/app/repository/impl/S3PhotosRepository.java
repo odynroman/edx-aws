@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Repository
 public class S3PhotosRepository implements PhotosRepository {
     private static final String PREFIX = "";
-    private static final String FILE_OBJ_KEY_NAME = "";
     private final AmazonS3 s3;
     private final String photosBucketName;
 
@@ -35,35 +34,34 @@ public class S3PhotosRepository implements PhotosRepository {
 
         return summaries.stream()
                 .map(S3ObjectSummary::getKey)
-                .map(pictKey -> {
-                    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(photosBucketName, pictKey);
-                    return s3.generatePresignedUrl(request).toString();
-                })
+                .map(this::getS3ObjectUrl)
                 .collect(Collectors.toList());
     }
 
+    private String getS3ObjectUrl(String objectKey) {
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(photosBucketName, objectKey);
+        return s3.generatePresignedUrl(request).toString();
+    }
+
     @Override
-    public boolean postPhoto(File file) {
+    public String postPhoto(File file) {
 
         try {
             // Upload a file as a new object with ContentType and title specified.
-            PutObjectRequest request = new PutObjectRequest(photosBucketName, FILE_OBJ_KEY_NAME, file);
-            s3.putObject(request);
-        } catch(AmazonServiceException e) {
+            PutObjectRequest request = new PutObjectRequest(photosBucketName, file.getName(), file);
+            s3.putObject(request).getMetadata();
+            return file.getName();
+
+        } catch(SdkClientException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
-            e.printStackTrace();
-
-            return false;
-        } catch(SdkClientException e) {
+            // or
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
             e.printStackTrace();
-
-            return false;
         }
 
-        return true;
+        return "";
     }
 
 }

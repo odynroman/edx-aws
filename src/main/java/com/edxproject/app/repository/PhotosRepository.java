@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface PhotosRepository {
     List<String> getPhotosUrls();
-    boolean postPhoto(File file);
+    String postPhoto(File file);
 }

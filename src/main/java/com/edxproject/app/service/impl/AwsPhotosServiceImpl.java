@@ -22,7 +22,7 @@ public class AwsPhotosServiceImpl implements PhotosService {
     }
 
     @Override
-    public Mono postPhoto(File file) {
+    public Mono<String> postPhoto(File file) {
         return Mono.fromCallable(() -> photosRepository.postPhoto(file));
     }
 }
