@@ -63,7 +63,7 @@ public class AppController {
                 .flatMap(this::postFile)
                 .log();
 
-        //FIXME:add possibility to disp;ay uploaded pictures
+        //FIXME:add possibility to display uploaded pictures
         model.addAttribute(PHOTOS, new ReactiveDataDriverContextVariable(uploadResult));
         model.addAttribute(UPLOADED, true);
 
