@@ -1,6 +1,5 @@
 package com.edxproject.app.repository.impl;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +33,7 @@ public class S3PhotosRepository implements PhotosRepository {
         }
 
         return summaries.stream()
+                .sorted(Comparator.comparing(S3ObjectSummary::getLastModified))
                 .map(S3ObjectSummary::getKey)
                 .map(this::getS3ObjectUrl)
                 .collect(Collectors.toList());
