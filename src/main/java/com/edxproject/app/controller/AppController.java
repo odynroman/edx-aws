@@ -2,6 +2,7 @@ package com.edxproject.app.controller;
 
 import com.edxproject.app.service.PhotosService;
 import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Controller
 public class AppController {
@@ -29,9 +31,11 @@ public class AppController {
     private static final String URL = "url";
     private static final String UPLOADED = "uploaded";
     private final PhotosService photosService;
+    private final String photosFolder;
 
-    public AppController(PhotosService photosService) {
+    public AppController(PhotosService photosService, @Value("${uploaded-photos-folder}") String photosFolder) {
         this.photosService = photosService;
+        this.photosFolder = photosFolder;
     }
 
     @GetMapping("/")
@@ -71,7 +75,8 @@ public class AppController {
     }
 
     private Publisher<String> postFile(FilePart filePart) {
-        Path target = Paths.get("").resolve(filePart.filename());
+        UUID uuid = UUID.randomUUID();
+        Path target = Paths.get("").resolve(photosFolder + uuid.toString() + ".png");
         try {
             Files.deleteIfExists(target);
             File file = Files.createFile(target).toFile();
