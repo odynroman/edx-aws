@@ -25,7 +25,9 @@
     <h3>Uploaded!</h3>
     <img th:src="${url}"/><br/>
     <!--{% for label in all_labels %}-->
-    <!--<span class="label label-info">{{label}}</span>-->
+    <th:block th:each="pict_label : ${all_labels}">
+        <span th:text="${pict_label}" class="label label-info"></span>
+    </th:block>
     <!--{% endfor %}-->
 </th:block>
 <!--{% endif %}-->

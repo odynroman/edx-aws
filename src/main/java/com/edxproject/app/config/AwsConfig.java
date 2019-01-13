@@ -1,6 +1,8 @@
 package com.edxproject.app.config;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.rekognition.AmazonRekognition;
+import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.transfer.TransferManager;
@@ -23,6 +25,14 @@ public class AwsConfig {
     @Bean
     public AmazonS3 s3(@Value("${region}") String region) {
         return AmazonS3ClientBuilder.standard()
+                .withRegion(region)
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
+    }
+
+    @Bean
+    public AmazonRekognition amazonRekognition(@Value("${region}") String region) {
+        return AmazonRekognitionClientBuilder.standard()
                 .withRegion(region)
                 .withCredentials(new DefaultAWSCredentialsProviderChain())
                 .build();

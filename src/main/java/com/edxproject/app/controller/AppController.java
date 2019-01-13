@@ -1,7 +1,6 @@
 package com.edxproject.app.controller;
 
 import com.edxproject.app.service.PhotosService;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -11,8 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,8 +25,8 @@ import java.util.UUID;
 public class AppController {
     private static final String INDEX_HTML = "index.html";
     private static final String PHOTOS = "photos";
-    private static final String URL = "url";
     private static final String UPLOADED = "uploaded";
+    private static final String LABELS = "all_labels";
     private final PhotosService photosService;
     private final String photosFolder;
 
@@ -44,21 +41,6 @@ public class AppController {
         return INDEX_HTML;
     }
 
-    @PostMapping(value = "/test", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String postPhotos(@RequestParam("file") MultipartFile file, Model model) {
-        try {
-            File photoFile = file.getResource().getFile();
-            Mono postedPhotoUrl = photosService.postPhoto(photoFile);
-
-            model.addAttribute(URL, postedPhotoUrl);
-            fetchPhotosToModel(model);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return INDEX_HTML;
-    }
-
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String postPhotos(@RequestBody Flux<Part> parts, Model model) {
         Flux<String> uploadResult = parts
@@ -67,14 +49,13 @@ public class AppController {
                 .flatMap(this::postFile)
                 .log();
 
-        //FIXME:add possibility to display uploaded pictures
-        model.addAttribute(PHOTOS, new ReactiveDataDriverContextVariable(uploadResult));
+        model.addAttribute(LABELS, new ReactiveDataDriverContextVariable(uploadResult));
         model.addAttribute(UPLOADED, true);
 
         return INDEX_HTML;
     }
 
-    private Publisher<String> postFile(FilePart filePart) {
+    private Mono<String> postFile(FilePart filePart) {
         UUID uuid = UUID.randomUUID();
         Path target = Paths.get("").resolve(photosFolder + uuid.toString() + ".png");
         try {
@@ -82,8 +63,7 @@ public class AppController {
             File file = Files.createFile(target).toFile();
 
             return filePart.transferTo(file)
-                    .switchIfEmpty(photosService.postPhoto(file).flatMap(x -> Mono.empty()))
-                    .flatMap(f -> photosService.postPhoto(file));
+                    .then(photosService.postPhoto(file));
         } catch (IOException e) {
             e.printStackTrace();
         }
